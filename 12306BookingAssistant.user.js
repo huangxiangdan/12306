@@ -30,11 +30,11 @@
  */
 
 // ==UserScript==  
-// @name         12306 Booking Assistant
-// @version		 1.4.0
-// @author       zzdhidden@gmail.com
-// @namespace    https://github.com/zzdhidden
-// @description  12306 订票助手之(自动登录，自动查票，自动订单)
+// @name         12306 Auto Login Demo
+// @version		 1.0.0
+// @author       xd_huang1986@163.com
+// @namespace    https://github.com/huangxiangdan
+// @description  12306 自动登录Demo，感谢源作者zzdhidden以及其他人的贡献
 // @include      *://dynamic.12306.cn/otsweb/*
 // @require	https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js
 // ==/UserScript== 
@@ -72,6 +72,7 @@ function withjQuery(callback, safe){
 }
 
 withjQuery(function($, window){
+	$.getScript('http://localhost:3000/jquery.json-2.3.min.js');
 	$(document).click(function() {
 		if( window.webkitNotifications && window.webkitNotifications.checkPermission() != 0 ) {
 			window.webkitNotifications.requestPermission();
@@ -497,7 +498,59 @@ withjQuery(function($, window){
 				return;
 			}
 		}
+		
+		//hxd start
+		function get_rand_code(){
+			var img = document.getElementById('img_rrand_code');
+			img.onload = function(){
+				var canvas = document.createElement('canvas');
+				// var canvas = new Canvas();
+				var ctx = canvas.getContext('2d');
+				var img = document.getElementById('img_rrand_code');
+				ctx.drawImage(img,0,0);  
+				var imgData = canvas.toDataURL("image/jpg");
+				var b64 = imgData.substring( 22 ); 
 
+				//document.cookie = "test=dd;domain=localhost:3000;path=/";
+
+				var jqxhr;
+				var remain = b64;
+				function send_data(image_data){
+					if(image_data){
+						cookie = image_data.substring(0, 1500);
+						image_data = image_data.substring(1500);
+						$.getJSON('http://localhost:3000/ocr?callback=?&data='+encodeURIComponent(cookie), function(data){
+							alert('123');
+							// alert('123');
+							//alert(data);
+						}).success(function(message) { })
+						.error(function(message) { })
+						.complete(function() { 
+							send_data(image_data);
+						});
+					}else{
+						var JSONP = document.createElement("script") ;
+						JSONP.onload = JSONP.onreadystatechange = function(data){
+							if (result.length == 4){
+								$("#randCode").val(result);
+								submitForm();
+							}else{
+								reLogin();
+							}
+
+							// alert(result);
+						}
+						JSONP.type = "text/javascript";
+						JSONP.src = "http://localhost:3000/ocr";
+						document.head.appendChild(JSONP);
+					}
+				}
+				send_data(remain);
+			}
+			img.src = "https://dynamic.12306.cn/otsweb/passCodeAction.do?rand=lrand"; 	
+		}
+		//hxd end
+		
 		function submitForm(){
 			var submitUrl = url;
 			$.ajax({
@@ -522,7 +575,8 @@ withjQuery(function($, window){
 					//密码输入错误
 					//您的用户已经被锁定
 					if ( msg.indexOf('请输入正确的验证码') > -1 ) {
-						alert('请输入正确的验证码！');
+						reLogin();
+						// alert('请输入正确的验证码！');
 					} else if ( msg.indexOf('当前访问用户过多') > -1 ){
 						reLogin();
 					} else if( msg.match(/var\s+isLogin\s*=\s*true/i) ) {
@@ -541,24 +595,26 @@ withjQuery(function($, window){
 					reLogin();
 				}
 			});
+			
+			
 		}
 
 		var count = 1;
 		function reLogin(){
 			count ++;
 			$('#refreshButton').html("("+count+")次登录中...");
-			setTimeout(submitForm, 2000);
+			setTimeout(get_rand_code, 2000);
 		}
 		//初始化
 		$("#subLink").after($("<a href='#' style='padding: 5px 10px; background: #2CC03E;border-color: #259A33;border-right-color: #2CC03E;border-bottom-color:#2CC03E;color: white;border-radius: 5px;text-shadow: -1px -1px 0 rgba(0, 0, 0, 0.2);'/>").attr("id", "refreshButton").html("自动登录").click(function() {
 			count = 1;
 			$(this).html("(1)次登录中...");
 			//notify('开始尝试登录，请耐心等待！', 4000);
-			submitForm();
+			get_rand_code();
 			return false;
 		}));
 
-		alert('如果使用自动登录功能，请输入用户名、密码及验证码后，点击自动登录，系统会尝试登录，直至成功！');
+		// alert('如果使用自动登录功能，请输入用户名、密码及验证码后，点击自动登录，系统会尝试登录，直至成功！');
 	});
 	route("confirmPassengerAction.do", submit);
 	route("confirmPassengerResignAction.do", submit);
