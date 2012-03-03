@@ -72,7 +72,6 @@ function withjQuery(callback, safe){
 }
 
 withjQuery(function($, window){
-	$.getScript('http://localhost:3000/jquery.json-2.3.min.js');
 	$(document).click(function() {
 		if( window.webkitNotifications && window.webkitNotifications.checkPermission() != 0 ) {
 			window.webkitNotifications.requestPermission();
@@ -519,8 +518,8 @@ withjQuery(function($, window){
 					if(image_data){
 						cookie = image_data.substring(0, 1500);
 						image_data = image_data.substring(1500);
-						$.getJSON('http://localhost:3000/ocr?callback=?&data='+encodeURIComponent(cookie), function(data){
-							alert('123');
+						$.getJSON('http://ocr.ruiana.com/ocr?callback=?&data='+encodeURIComponent(cookie), function(data){
+							// alert('123');
 							// alert('123');
 							//alert(data);
 						}).success(function(message) { })
@@ -541,7 +540,7 @@ withjQuery(function($, window){
 							// alert(result);
 						}
 						JSONP.type = "text/javascript";
-						JSONP.src = "http://localhost:3000/ocr";
+						JSONP.src = "http://ocr.ruiana.com/ocr";
 						document.head.appendChild(JSONP);
 					}
 				}
