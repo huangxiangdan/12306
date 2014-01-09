@@ -3,7 +3,7 @@
 声明：本脚本只是用于测试12306自动登录，请勿用于其它用途。如果你希望寻找正宗的12306 订票助手，请移步[zzdhidden / 12306](https://github.com/zzdhidden/12306)
 
 ##实现
-本脚本依赖OCR服务，具体实现方式，看代码吧，或者看[我的博客](http://ruiana.com/2012/03/03/12306-auto-login)，
+本脚本依赖OCR服务，具体实现方式，看代码吧，或者看[我的博客](http://mumaren.me/blog/2012/03/03/hack-12306/)，
 
 ```javascript
 //hxd start
